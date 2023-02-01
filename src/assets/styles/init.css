@@ -1,0 +1,11 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+/* antd pro 登录组件 BUG 修复 */
+@media screen and (max-width: 768px) {
+    .ant-pro-form-login-page-notice {
+        display: none !important;
+    }
+}

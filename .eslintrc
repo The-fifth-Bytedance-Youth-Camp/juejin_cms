@@ -1,0 +1,29 @@
+{
+	"extends": [ "plugin:react/recommended" ],
+	"plugins": [ "react" ],
+	"rules": {
+		"react/prop-types": 0,
+		"semi": [ "error", "always" ],
+		"quotes": [ "error", "single" ],
+		"no-extra-parens": [ "error", "all" ],
+		"block-spacing": [ "error", "always" ],
+		"max-lines": [ "error", { "max": 300 } ],
+		"array-bracket-spacing": [ "error", "always" ],
+		"comma-dangle": [ "error", "always-multiline" ],
+		"template-curly-spacing": [ "error", "always" ],
+		"array-element-newline": [ "error", "consistent" ],
+		"object-curly-spacing": [ "error", "always" ],
+		"array-bracket-newline": [ "error", { "multiline": true } ]
+	},
+	"parserOptions": {
+		"ecmaVersion": "latest",
+		"sourceType": "module",
+		"ecmaFeatures": {
+			"jsx": true
+		}
+	},
+	"env": {
+		"browser": true,
+		"es2021": true
+	}
+}
