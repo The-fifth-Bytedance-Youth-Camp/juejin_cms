@@ -1,20 +1,21 @@
 import axios from 'axios';
 
 const request = axios.create({
-	baseURL: 'http://localhost:4400',
+	baseURL: 'http://localhost:3000',
 	headers: {
 		Authorization: 'Bearer ' + (() => localStorage.getItem('token'))(),
+		DownLink: (() => navigator.connection?.effectiveType.toLowerCase())(),
 	},
 });
 
-export const api = {
+export const personApi = {
 	loginByPassword(name, password) {
-		return request.post('/person/login/admin/password', {
+		return request.post('/login/admin/password', {
 			name,
 			password,
 		});
 	},
 	loginByToken() {
-		return request.get('/person/admin/find');
+		return request.get('/admin/find');
 	},
 };

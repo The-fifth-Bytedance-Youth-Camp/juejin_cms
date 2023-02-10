@@ -10,7 +10,7 @@ import Email from './Email';
 import Account from './Account';
 import Register from './Register';
 import useScreenWidth from '../../utils/hooks/useScreenWidth';
-import { api } from '../../apis';
+import { personApi } from '../../apis/person';
 
 const Landing = () => {
 	const [ messageApi, contextHolder ] = message.useMessage();
@@ -20,7 +20,7 @@ const Landing = () => {
 	const closeDrawer = () => setOpen(false);
 	// 登录
 	const accountLogin = async ({ autoLogin, username, password }) => {
-		const { data: { code, token } } = await api.loginByPassword(username, password);
+		const { data: { code, token } } = await personApi.loginByPassword(username, password);
 		if (autoLogin && token) localStorage.setItem('token', token);
 		await messageApi.open({
 			type: code === 200 ? 'success' : 'error',

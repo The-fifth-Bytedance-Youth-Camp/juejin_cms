@@ -5,15 +5,16 @@ import { GithubFilled, VideoCameraFilled, YuqueFilled } from '@ant-design/icons'
 import { useNavigate, useRoutes } from 'react-router-dom';
 import routes from '../../routes';
 import PubSub from 'pubsub-js';
-import default_avatar from '../../assets/img/defeault_avatar.png';
-import { api } from '../../apis';
+import { personApi } from '../../apis/person';
 import { Modal } from 'antd';
+import useScreenWidth from '../../utils/hooks/useScreenWidth';
 
 const goto = (url) => {
 	return () => open(url, '_blank');
 };
 
 const Main = () => {
+	const screenWidth = useScreenWidth();
 	const [ isModalOpen, setIsModalOpen ] = useState(false);
 	const logout = () => {
 		setIsModalOpen(false);
@@ -21,7 +22,7 @@ const Main = () => {
 		location.reload();
 	};
 	const [ userInfo, setUserInfo ] = useState(null);
-	const setUser = (name = '管理员', src = default_avatar) => {
+	const setUser = (name = '管理员', src) => {
 		setUserInfo({
 			name,
 			src,
@@ -32,8 +33,8 @@ const Main = () => {
 	useEffect(() => {
 		(async () => {
 			if (!userInfo) {
-				const { data: { name } } = await api.loginByToken();
-				setUser(name);
+				const { data: { name, src } } = await personApi.loginByToken();
+				setUser(name, src);
 			}
 		})();
 	});
@@ -87,7 +88,11 @@ const Main = () => {
 							}
 						}>{ dom }</div>
 				}>
-				<ProCard style={ { height: 'calc(100vh - 123px)', marginTop: '10px' } }>
+				<ProCard style={ {
+					minHeight: 'calc(100vh - 123px)',
+					height: screenWidth >= 766 ? 'calc(100vh - 123px)' : 'fit-content',
+					marginTop: '10px',
+				} }>
 					{ useRoutes(routes) }
 				</ProCard>
 			</ProLayout>
