@@ -62,6 +62,7 @@ const Insert = () => {
 	}
 
 	async function imageUpload(file) {
+		// 添加数据到 image 表
 		setLoading(true);
 		// 上传到服务器
 		const { data: { url } } = await postApi.uploadImage(file);
@@ -74,7 +75,6 @@ const Insert = () => {
 	}
 
 	async function onFormChange({ title, cover, theme, codeStyle, category, tags }) {
-		console.log({ title, cover, theme, codeStyle, category, tags });
 		let _cover;
 		if (cover?.length && cover[0]?.response) _cover = cover[0]?.response?.pid;
 		const { data: { code } } = await postApi.insertPostCache({
@@ -94,7 +94,8 @@ const Insert = () => {
 	}
 
 	async function onFinish(res) {
-		const cover = res?.cover[0].response.pid;
+		let cover;
+		if (res.cover?.length && res.cover[0]?.response) cover = res.cover[0]?.response?.pid;
 		const brief = getMarkdownBrief(postContent, 100);
 		console.log({ ...res, cover, content: postContent, brief });
 	}
@@ -129,7 +130,6 @@ const Insert = () => {
 									 if (code !== 200) return { theme, codeStyle };
 									 setTheme(theme);
 									 setCodeStyle(code_style);
-									 console.log({ theme, codeStyle, category, cover, title, tags });
 									 return { theme, codeStyle, category, cover, title, tags };
 								 }
 							 }
