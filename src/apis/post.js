@@ -29,10 +29,15 @@ export const postApi = {
 			params: { keyword },
 		});
 	},
-	insertPostCache(content) {
-		return request.post('/cache/insert', { content });
+	insertPostCache({ title, category, cover, content, tags, theme, codeStyle }) {
+		return request.post('/cache/insert', { title, category, cover, content, tags, theme, codeStyle });
 	},
 	getPostCache() {
 		return request.get('/cache');
+	},
+	uploadImage(file) {
+		const data = new FormData();
+		data.append('file', file, file?.name);
+		return request.post('/upload/image', data);
 	},
 };

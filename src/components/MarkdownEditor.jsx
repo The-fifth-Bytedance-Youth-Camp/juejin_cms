@@ -12,7 +12,7 @@ import mark from 'markdown-it-mark';
 import tasklists from 'markdown-it-task-lists';
 import hljs from 'highlight.js';
 import '../assets/styles/markdown-editor.css';
-import spinner from '../assets/svg/spinner.svg';
+import Spinner from '../assets/svg/spinner';
 import useScreenWidth from '../utils/hooks/useScreenWidth';
 import ReactDOMServer from 'react-dom/server';
 
@@ -63,10 +63,10 @@ const copyCode = (md) => {
 			userSelect: 'none',
 		};
 		let language = token.info;
-		let codeHtml = code;
+		let codeHtml = code.replaceAll('\t', '  ');
 		try {
 			if (hljs.getLanguage(language)) {
-				codeHtml = hljs.highlight(code, { language }).value;
+				codeHtml = hljs.highlight(codeHtml, { language }).value;
 			}
 		} catch (_) { }
 		return ReactDOMServer.renderToString(
@@ -107,12 +107,13 @@ const mdParser = new MarkdownIt({
 	.use(linkTarget)
 	.use(tasklists, { enabled: true });
 
-const MarkdownEditor = ({ defaultValue, onChange, style = {}, onCacheUpload, onImageUpload }) => {
+const MarkdownEditor = ({ loading, defaultValue, onChange, style = {}, onCacheUpload, onImageUpload }) => {
 	const mdEditorRef = useRef(null);
 	const [ cache, setCache ] = useState(defaultValue);
 	const [ debouncedCache, setDebouncedCache ] = useState(defaultValue);
 	const screenWidth = useScreenWidth();
 	const [ height, setHeight ] = useState(undefined);
+	const [ showFlag, setShowFlag ] = useState(false);
 
 	const rootRef = useRef(null);
 
@@ -136,7 +137,7 @@ const MarkdownEditor = ({ defaultValue, onChange, style = {}, onCacheUpload, onI
 				if (cache !== debouncedCache) {
 					setDebouncedCache(cache);
 				}
-			}, 1500);
+			}, 800);
 			return () => clearTimeout(handler);
 		},
 		[ cache ],
@@ -149,16 +150,20 @@ const MarkdownEditor = ({ defaultValue, onChange, style = {}, onCacheUpload, onI
 		}
 	}, [ debouncedCache ]);
 
+	useEffect(() => {
+		setShowFlag(!loading || defaultValue !== undefined && height !== undefined);
+	}, [ loading, defaultValue, height ]);
+
 	return (
 		<div style={ style } ref={ rootRef }>
 			{
-				defaultValue !== undefined && height !== undefined ?
+				showFlag ?
 					<MdEditor
 						ref={ mdEditorRef }
 						defaultValue={ defaultValue }
 						shortcuts
 						placeholder="自动上传保存至服务器"
-						style={ { height: `${ height }px` } }
+						style={ { height: `${ height - 16 }px` } }
 						renderHTML={ text => mdParser.render(text) }
 						onChange={ ({ text }) => {
 							onChange(text);
@@ -175,7 +180,7 @@ const MarkdownEditor = ({ defaultValue, onChange, style = {}, onCacheUpload, onI
 						...flexCenter,
 					} }>
 						<div style={ { flexDirection: 'column', ...flexCenter } }>
-							<img width="80px" src={ spinner } alt="spinner"/>
+							<Spinner/>
 							<div>正在加载草稿数据</div>
 						</div>
 					</div>
