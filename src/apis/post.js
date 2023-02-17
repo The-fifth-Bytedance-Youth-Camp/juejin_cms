@@ -29,8 +29,8 @@ export const postApi = {
 			params: { keyword },
 		});
 	},
-	insertPostCache({ title, category, cover, content, tags, theme, codeStyle }) {
-		return request.post('/cache/insert', { title, category, cover, content, tags, theme, codeStyle });
+	insertPostCache({ title, category, cover, content, tags, theme, codeStyle: code_style }) {
+		return request.post('/cache/insert', { title, category, cover, content, tags, theme, code_style });
 	},
 	getPostCache() {
 		return request.get('/cache');
@@ -39,5 +39,31 @@ export const postApi = {
 		const data = new FormData();
 		data.append('file', file, file?.name);
 		return request.post('/upload/image', data);
+	},
+	insertPost({ title, brief, content, cover, category, tags, images, theme, codeStyle: code_style }) {
+		return request.post('/post/insert', {
+			title,
+			brief,
+			content,
+			cover,
+			category,
+			tags,
+			images,
+			theme,
+			code_style,
+		});
+	},
+	searchPost({ title, category, tags, state, endTime, startTime, current: page, pageSize: rows }) {
+		return request.get('/post/search', {
+			params: { title, category, tags, state, endTime, startTime, page, rows },
+		});
+	},
+	findPostTags(id) {
+		return request.get('/post/find/tag', {
+			params: { id },
+		});
+	},
+	deletePost(id) {
+		return request.post('/post/delete', { id });
 	},
 };

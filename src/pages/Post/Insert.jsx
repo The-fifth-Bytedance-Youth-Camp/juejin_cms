@@ -16,16 +16,14 @@ const { Title } = Typography;
 
 // 去除 markdown 字符
 function removeMarkdownChars(markdown) {
-	return markdown.replace(/\n```.*```\n/g, '')
+	return markdown.replace(/```.*```/g, '')
+								 .replace(/>/g, '')
 								 .replace(/`/g, '')
-								 .replace(/\*\*/g, '')
-								 .replace(/\*/g, '')
 								 .replace(/#/g, '')
-								 .replace(/\[/g, '')
-								 .replace(/]/g, '')
-								 .replace(/\(/g, '')
-								 .replace(/\)/g, '')
-								 .replace(/_/g, '');
+								 .replace(/\*/g, '')
+								 .replace(/\r/g, '')
+								 .replace(/\s+/g, ' ')
+								 .trim();
 }
 
 function getMarkdownBrief(markdown = '', maxLength) {
@@ -65,23 +63,43 @@ const Insert = () => {
 		// 添加数据到 image 表
 		setLoading(true);
 		// 上传到服务器
-		const { data: { url } } = await postApi.uploadImage(file);
+		const { data: { code, url, pid } } = await postApi.uploadImage(file);
+		if (code === 200 && pid) {
+			messageApi.open({
+				type: 'success',
+				content: '图片上传成功',
+			});
+		} else {
+			messageApi.open({
+				type: 'error',
+				content: '图片上传失败',
+			});
+			return '';
+		}
+
+		// 上传过的图片
+		let cache_pid = localStorage.getItem('$cache_pid');
+		if (cache_pid) {
+			const pidList = JSON.parse(cache_pid);
+			pidList.push(pid);
+			localStorage.setItem('$cache_pid', JSON.stringify(pidList));
+		} else {
+			localStorage.setItem('$cache_pid', JSON.stringify([ pid ]));
+		}
 		setLoading(false);
-		messageApi.open({
-			type: 'success',
-			content: '图片上传成功',
-		});
 		return url;
 	}
 
 	async function onFormChange({ title, cover, theme, codeStyle, category, tags }) {
+		if (theme) setTheme(theme);
+		if (codeStyle) setCodeStyle(codeStyle);
 		let _cover;
 		if (cover?.length && cover[0]?.response) _cover = cover[0]?.response?.pid;
 		const { data: { code } } = await postApi.insertPostCache({
 			cover: _cover,
 			theme,
 			title,
-			code_style: codeStyle,
+			codeStyle,
 			category,
 			tags,
 		});
@@ -97,7 +115,22 @@ const Insert = () => {
 		let cover;
 		if (res.cover?.length && res.cover[0]?.response) cover = res.cover[0]?.response?.pid;
 		const brief = getMarkdownBrief(postContent, 100);
-		console.log({ ...res, cover, content: postContent, brief });
+		const images = localStorage.getItem('$cache_pid');
+		let { data: { code, insertId } } = await postApi.insertPost({ ...res, cover, content: postContent, brief, images });
+		if (code === 200) {
+			await messageApi.open({
+				type: 'success',
+				content: '上传成功',
+			});
+			// 跳转文章详情
+			window.open(`http://localhost:3001/post/${ insertId }`, '_blank');
+			location.reload();
+		} else {
+			messageApi.open({
+				type: 'error',
+				content: '上传失败',
+			});
+		}
 	}
 
 	return (
@@ -124,12 +157,11 @@ const Insert = () => {
 											 code_style,
 										 },
 									 } = await postApi.getPostCache();
-									 if (content === null) content = '';
-									 setCacheContent(content);
-									 setPostContent(content);
+									 setCacheContent(content || '');
+									 setPostContent(content || '');
 									 if (code !== 200) return { theme, codeStyle };
-									 setTheme(theme);
-									 setCodeStyle(code_style);
+									 if (theme) setTheme(theme);
+									 if (code_style) setCodeStyle(code_style);
 									 return { theme, codeStyle, category, cover, title, tags };
 								 }
 							 }

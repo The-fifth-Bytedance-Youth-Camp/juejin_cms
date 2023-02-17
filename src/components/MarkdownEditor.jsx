@@ -1,20 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import MdEditor from 'react-markdown-editor-lite';
-import MarkdownIt from 'markdown-it';
-import emoji from 'markdown-it-emoji';
-import subscript from 'markdown-it-sub';
-import superscript from 'markdown-it-sup';
-import footnote from 'markdown-it-footnote';
-import deflist from 'markdown-it-deflist';
-import abbreviation from 'markdown-it-abbr';
-import insert from 'markdown-it-ins';
-import mark from 'markdown-it-mark';
-import tasklists from 'markdown-it-task-lists';
-import hljs from 'highlight.js';
 import '../assets/styles/markdown-editor.css';
 import Spinner from '../assets/svg/spinner';
 import useScreenWidth from '../utils/hooks/useScreenWidth';
-import ReactDOMServer from 'react-dom/server';
+import { mdParser } from '../utils/markdown';
 
 const flexCenter = {
 	display: 'flex',
@@ -22,98 +11,12 @@ const flexCenter = {
 	alignItems: 'center',
 };
 
-const linkTarget = (md) => {
-	const defaultRender = md.renderer.rules.link_open || function (tokens, idx, options, env, self) {
-		return self.renderToken(tokens, idx, options);
-	};
-	md.renderer.rules.link_open = function (tokens, idx, options, env, self) {
-		tokens[idx].attrPush([ 'target', '_blank' ]);
-		return defaultRender(tokens, idx, options, env, self);
-	};
-};
-
-const codeColor = (md) => {
-	const defaultRender = md.renderer.rules.code_inline || function (tokens, idx, options, env, self) {
-		return self.renderToken(tokens, idx, options);
-	};
-	md.renderer.rules.code_inline = function (tokens, idx, options, env, self) {
-		tokens[idx].attrPush([
-			'style',
-			'color: #ff502c;' +
-			'background-color: #fff5f5;' +
-			'border-radius: 2px;' +
-			'font-size: .87em;' +
-			'padding: .065em .4em;',
-		]);
-		return defaultRender(tokens, idx, options, env, self);
-	};
-};
-
-const copyCode = (md) => {
-	// 使用MarkdownIt的自定义标签功能添加复制按钮和语言类型展示
-	md.renderer.rules.fence = function (tokens, idx) {
-		const token = tokens[idx];
-		const code = token.content.trim();
-		const copyCodeStyle = {
-			fontSize: '12px',
-			color: 'hsla(0,0%,54.9%,.8)',
-			position: 'absolute',
-			top: '6px',
-			right: '15px',
-			userSelect: 'none',
-		};
-		let language = token.info;
-		let codeHtml = code.replaceAll('\t', '  ');
-		try {
-			if (hljs.getLanguage(language)) {
-				codeHtml = hljs.highlight(codeHtml, { language }).value;
-			}
-		} catch (_) { }
-		return ReactDOMServer.renderToString(
-			<pre className={ `language-${ language }` } style={ { position: 'relative' } }>
-					<code className={ `language-${ language }` } dangerouslySetInnerHTML={ { __html: codeHtml } }/>
-					<span style={ copyCodeStyle }>
-						{ language }&nbsp;<span style={ { cursor: 'pointer' } }>复制代码</span>
-					</span>
-			</pre>,
-		);
-	};
-};
-
-const addMarkdownBodyClass = function (md) {
-	const defaultRender = md.renderer.render;
-	md.renderer.render = function (tokens, options, env) {
-		let result = defaultRender.call(this, tokens, options, env);
-		result = `<div class="markdown-body">${ result }</div>`;
-		return result;
-	};
-};
-
-const mdParser = new MarkdownIt({
-	linkify: true,
-	typographer: true,
-})
-	.use(addMarkdownBodyClass)
-	.use(emoji)
-	.use(subscript)
-	.use(superscript)
-	.use(footnote)
-	.use(deflist)
-	.use(abbreviation)
-	.use(insert)
-	.use(mark)
-	.use(copyCode)
-	.use(codeColor)
-	.use(linkTarget)
-	.use(tasklists, { enabled: true });
-
 const MarkdownEditor = ({ loading, defaultValue, onChange, style = {}, onCacheUpload, onImageUpload }) => {
 	const mdEditorRef = useRef(null);
 	const [ cache, setCache ] = useState(defaultValue);
 	const [ debouncedCache, setDebouncedCache ] = useState(defaultValue);
 	const screenWidth = useScreenWidth();
 	const [ height, setHeight ] = useState(undefined);
-	const [ showFlag, setShowFlag ] = useState(false);
 
 	const rootRef = useRef(null);
 
@@ -150,40 +53,52 @@ const MarkdownEditor = ({ loading, defaultValue, onChange, style = {}, onCacheUp
 		}
 	}, [ debouncedCache ]);
 
-	useEffect(() => {
-		setShowFlag(!loading || defaultValue !== undefined && height !== undefined);
-	}, [ loading, defaultValue, height ]);
+	const Loading = ({ msg }) => {
+		return (
+			<div style={ {
+				userSelect: 'none',
+				width: '100%',
+				height: '100%',
+				color: '#1677ff',
+				backgroundColor: '#ffffff',
+				border: '1px solid #ffffff',
+				...flexCenter,
+				position: 'absolute',
+				top: 0,
+				left: '50%',
+				transform: 'translateX(-50%)',
+				display: loading ? 'flex' : 'none',
+				zIndex: '99999',
+			} }>
+				<div style={ { flexDirection: 'column', ...flexCenter } }>
+					<Spinner/>
+					<div>{ msg }</div>
+				</div>
+			</div>
+		);
+	};
 
 	return (
-		<div style={ style } ref={ rootRef }>
+		<div style={ { ...style, position: 'relative' } } ref={ rootRef }>
 			{
-				showFlag ?
-					<MdEditor
-						ref={ mdEditorRef }
-						defaultValue={ defaultValue }
-						shortcuts
-						placeholder="自动上传保存至服务器"
-						style={ { height: `${ height - 16 }px` } }
-						renderHTML={ text => mdParser.render(text) }
-						onChange={ ({ text }) => {
-							onChange(text);
-							setCache(text);
-						} }
-						onImageUpload={ onImageUpload }/> :
-					<div style={ {
-						userSelect: 'none',
-						height: '100%',
-						color: '#1677ff',
-						backgroundColor: 'rgba(22,119,255,.01)',
-						borderRadius: '20px',
-						boxShadow: '0 0 20px rgba(22,119,255,.01)',
-						...flexCenter,
-					} }>
-						<div style={ { flexDirection: 'column', ...flexCenter } }>
-							<Spinner/>
-							<div>正在加载草稿数据</div>
-						</div>
-					</div>
+				defaultValue !== undefined && height !== undefined ?
+					<Fragment>
+						<MdEditor
+							shortcuts
+							ref={ mdEditorRef }
+							defaultValue={ defaultValue }
+							placeholder="自动上传保存至服务器"
+							style={ { height: `${ height - 16 }px` } }
+							renderHTML={ text => mdParser.render(text) }
+							onChange={ ({ text }) => {
+								onChange(text);
+								setCache(text);
+							} }
+							htmlClass="markdown-body"
+							onImageUpload={ onImageUpload }/>
+						<Loading msg="正在上传图片"/>
+					</Fragment> :
+					<Loading msg="正在加载草稿数据"/>
 			}
 		</div>
 	);
