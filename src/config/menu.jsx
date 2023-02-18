@@ -51,12 +51,12 @@ const menus = [
 						icon: <InfoCircleOutlined/>,
 						element: <SuperInfo/>,
 					},
-					{
-						path: 'role',
-						name: '角色管理',
-						icon: <UserOutlined/>,
-						element: <Role/>,
-					},
+					// {
+					// 	path: 'role',
+					// 	name: '角色管理',
+					// 	icon: <UserOutlined/>,
+					// 	element: <Role/>,
+					// },
 				],
 			},
 			{

@@ -18,4 +18,50 @@ export const personApi = {
 	loginByToken() {
 		return request.get('/admin/find');
 	},
+	searchSuperInfo(id) {
+		return request.get('/admin/search',{
+			params: { id },
+		});
+	},
+	searchCommonInfo(id) {
+		return request.get('/user/search',{
+			params: { id },
+		});
+	},
+	deleteAdmin(id) {
+		return request.post('/admin/delete', { id });
+	},
+	deleteCommon(id) {
+		return request.post('/user/delete', { id });
+	},
+	insertAdmin({ name,email,password }){
+		return request.post('/admin/insert', {
+			name,
+			email,
+			password,
+		});
+	},
+	insertCommon({ name,email,password }){
+		return request.post('/user/insert', {
+			name,
+			email,
+			password,
+		});
+	},
+	updateAdmin({ id,name,email,password }){
+		return request.post('/admin/update', {
+			id,
+			name,
+			email,
+			password,
+		});
+	},
+	updateCommon({ id,name,email,password }){
+		return request.post('/user/update', {
+			id,
+			name,
+			email,
+			password,
+		});
+	},
 };
