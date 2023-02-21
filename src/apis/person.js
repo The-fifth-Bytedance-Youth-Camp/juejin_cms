@@ -18,14 +18,14 @@ export const personApi = {
 	loginByToken() {
 		return request.get('/admin/find');
 	},
-	searchSuperInfo(id) {
+	searchSuperInfo(id,keyword) {
 		return request.get('/admin/search',{
-			params: { id },
+			params: { id,keyword },
 		});
 	},
-	searchCommonInfo(id) {
+	searchCommonInfo(id,keyword) {
 		return request.get('/user/search',{
-			params: { id },
+			params: { id,keyword },
 		});
 	},
 	deleteAdmin(id) {
@@ -63,5 +63,11 @@ export const personApi = {
 			email,
 			password,
 		});
+	},
+	searchAllAdmin(){
+		return request.get('/admin/searchall');
+	},
+	searchAllCommon(){
+		return request.get('/user/searchall');
 	},
 };

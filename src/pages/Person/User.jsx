@@ -1,17 +1,18 @@
+
 import { ProTable } from '@ant-design/pro-components';
 import { Button, message, Popconfirm, Space, Tag } from 'antd';
 import { EllipsisOutlined, PlusOutlined } from '@ant-design/icons';
 import React, { Fragment } from 'react';
-import { personApi } from '../../apis/person';
+import { personApi } from '../../../apis/person';
 import {
 	ModalForm,
 	ProForm,
 	ProFormDateRangePicker,
 	ProFormSelect,
 	ProFormText,
-} from '@ant-design/pro-components';
+  } from '@ant-design/pro-components';
 
-const User = () => {
+const Info = () => {
 	const [ messageApi, contextHolder ] = message.useMessage();
 	const columns = [
 		{
@@ -27,12 +28,14 @@ const User = () => {
 			dataIndex: 'email',
 		},
 		{
-			title: '验证是否通过',
-			dataIndex: 'is_allow',
-		},
-		{
 			title: '创建时间',
 			dataIndex: 'gmt_created',
+			valueType: 'date',
+		},
+		{
+			title: '更新时间',
+			dataIndex: 'gmt_modified',
+			valueType: 'date',
 		},
 		{
 			width: '12%',
@@ -60,35 +63,35 @@ const User = () => {
 						删除
 					</a>
 				</Popconfirm>,
-				<ModalForm key="update"
-									 title="更新普通用户"
-									 trigger={
-										 <a key="update">更新</a>
-									 }
-									 submitTimeout={ 2000 }
-									 onFinish={ async (values) => {
-										 const { id, name, email, password } = values;
-										 await personApi.updateCommon({ id, name, email, password });
-										 message.success('更新成功');
-										 return true;
-									 } }
+				<ModalForm key='update'
+					title="更新普通用户"
+					trigger={
+						<a key="update">更新</a>
+					}
+					submitTimeout={2000}
+					onFinish={async (values) => {
+						const { id,name,email,password } = values;
+						await personApi.updateCommon({ id,name,email,password });
+						message.success('更新成功');
+						return true;
+					}}
 				>
 					<ProForm.Group>
-						<ProFormText width="md" name="id" disabled label="编号" initialValue={ `${ id }` }/>
+						<ProFormText width="md" name="id" disabled label="编号" initialValue={`${ id }`}/>
 					</ProForm.Group>
 					<ProForm.Group>
 						<ProFormText
-							width="md"
-							name="name"
-							label="用户名"
-							placeholder="请输入用户名"
+						width="md"
+						name="name"
+						label="用户名"
+						placeholder="请输入用户名"
 						/>
 					</ProForm.Group>
 					<ProForm.Group>
-						<ProFormText width="md" name="email" label="邮箱" placeholder="请输入邮箱"/>
+						<ProFormText width="md" name="email" label="邮箱" placeholder="请输入邮箱" />
 					</ProForm.Group>
 					<ProForm.Group>
-						<ProFormText.Password width="md" name="password" label="密码" type="password" placeholder="请输入密码"/>
+						<ProFormText.Password width="md" name="password" label="密码" type="password" placeholder="请输入密码" />
 					</ProForm.Group>
 				</ModalForm>,
 			],
@@ -99,63 +102,81 @@ const User = () => {
 			<ProTable
 				cardBordered
 				columns={ columns }
-				request={ async (params = {}) => {
-					const { data: { code, result } } = await personApi.searchCommonInfo(params.id);
-					if (code !== 200) {
-						messageApi.open({
-							type: 'error',
-							content: '搜索失败',
-						});
-						return [];
+				request = { async (params = {})=>{
+					if(params.id===undefined){
+						const { data:{ code,result } }=await personApi.searchAllCommon();
+						if(code !== 200){
+							return [];
+						}
+						//获取全部管理员信息
+						let ret = [];
+						// console.log(result[0][0]);
+						for(const item in result[0]){
+							ret.push(result[0][item]);
+						}
+						return {
+							data: ret,
+							success: code === 200,
+						};
 					}
-					//获取对应普通用户数据
-					let ret = [];
-					for (const item of result) {
-						ret.push({ ...item });
+					else{
+						const { data:{ code,result } }=await personApi.searchCommonInfo(params.id,params.name);
+						if(code !== 200){
+							messageApi.open({
+								type: 'error',
+								content: '搜索失败',
+							});
+							return [];
+						}
+						//获取对应普通用户数据
+						let ret = [];
+						for (const item of result) {
+							ret.push({ ...item });
+						}
+						return {
+							data: ret,
+							success: code === 200,
+						};
 					}
-					return {
-						data: ret,
-						success: code === 200,
-					};
-				} }
+				}}
 				rowKey="id"
 				headerTitle="普通用户列表"
-				toolBarRender={ () => [
-					<ModalForm key="insert"
-										 title="添加普通用户"
-										 trigger={
-											 <Button type="primary">
-												 <PlusOutlined/>
-												 添加
-											 </Button>
-										 }
-										 submitTimeout={ 2000 }
-										 onFinish={ async (values) => {
-											 const { name, email, password } = values;
-											 await personApi.insertCommon({ name, email, password });
-											 message.success('提交成功');
-											 return true;
-										 } }
+				toolBarRender={() => [
+					<ModalForm key='insert'
+						title="添加普通用户"
+						trigger={
+							<Button type="primary">
+							<PlusOutlined />
+							添加
+							</Button>
+						}
+						submitTimeout={2000}
+						onFinish={async (values) => {
+							const { name,email,password } = values;
+							await personApi.insertCommon({ name,email,password });
+							message.success('提交成功');
+							return true;
+						}}
 					>
-						<ProForm.Group>
+						 <ProForm.Group>
 							<ProFormText
-								width="md"
-								name="name"
-								label="用户名"
-								placeholder="请输入用户名"
+							width="md"
+							name="name"
+							label="用户名"
+							placeholder="请输入用户名"
 							/>
 						</ProForm.Group>
 						<ProForm.Group>
-							<ProFormText width="md" name="email" label="邮箱" placeholder="请输入邮箱"/>
+							<ProFormText width="md" name="email" label="邮箱" placeholder="请输入邮箱" />
 						</ProForm.Group>
 						<ProForm.Group>
-							<ProFormText.Password width="md" name="password" label="密码" type="password" placeholder="请输入密码"/>
+							<ProFormText.Password width="md" name="password" label="密码" type="password" placeholder="请输入密码" />
 						</ProForm.Group>
 					</ModalForm>,
-				] }
+				]}
 			/>
 		</Fragment>
 	);
 };
 
-export default User;
+export default Info;
