@@ -120,7 +120,7 @@ const Info = () => {
 						};
 					}
 					else{
-						const { data:{ code,result } }=await personApi.searchCommonInfo(params.id);
+						const { data:{ code,result } }=await personApi.searchCommonInfo(params.id,params.name);
 						if(code !== 200){
 							messageApi.open({
 								type: 'error',

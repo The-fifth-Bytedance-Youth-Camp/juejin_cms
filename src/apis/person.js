@@ -23,9 +23,9 @@ export const personApi = {
 			params: { id,keyword },
 		});
 	},
-	searchCommonInfo(id) {
+	searchCommonInfo(id,keyword) {
 		return request.get('/user/search',{
-			params: { id },
+			params: { id,keyword },
 		});
 	},
 	deleteAdmin(id) {
