@@ -28,12 +28,14 @@ const Info = () => {
 			dataIndex: 'email',
 		},
 		{
-			title: '验证是否通过',
-			dataIndex: 'is_allow',
-		},
-		{
 			title: '创建时间',
 			dataIndex: 'gmt_created',
+			valueType: 'date',
+		},
+		{
+			title: '更新时间',
+			dataIndex: 'gmt_modified',
+			valueType: 'date',
 		},
 		{
 			width: '12%',
@@ -101,23 +103,41 @@ const Info = () => {
 				cardBordered
 				columns={ columns }
 				request = { async (params = {})=>{
-					const { data:{ code,result } }=await personApi.searchCommonInfo(params.id);
-					if(code !== 200){
-						messageApi.open({
-							type: 'error',
-							content: '搜索失败',
-						});
-						return [];
+					if(params.id===undefined){
+						const { data:{ code,result } }=await personApi.searchAllCommon();
+						if(code !== 200){
+							return [];
+						}
+						//获取全部管理员信息
+						let ret = [];
+						// console.log(result[0][0]);
+						for(const item in result[0]){
+							ret.push(result[0][item]);
+						}
+						return {
+							data: ret,
+							success: code === 200,
+						};
 					}
-					//获取对应普通用户数据
-					let ret = [];
-					for (const item of result) {
-						ret.push({ ...item });
+					else{
+						const { data:{ code,result } }=await personApi.searchCommonInfo(params.id);
+						if(code !== 200){
+							messageApi.open({
+								type: 'error',
+								content: '搜索失败',
+							});
+							return [];
+						}
+						//获取对应普通用户数据
+						let ret = [];
+						for (const item of result) {
+							ret.push({ ...item });
+						}
+						return {
+							data: ret,
+							success: code === 200,
+						};
 					}
-					return {
-						data: ret,
-						success: code === 200,
-					};
 				}}
 				rowKey="id"
 				headerTitle="普通用户列表"

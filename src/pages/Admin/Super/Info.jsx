@@ -17,6 +17,7 @@ const Info = () => {
 		{
 			title: '编号',
 			dataIndex: 'id',
+			width: '8%',
 		},
 		{
 			title: '用户名',
@@ -27,12 +28,34 @@ const Info = () => {
 			dataIndex: 'email',
 		},
 		{
-			title: '验证是否通过',
+			title: '状态',
 			dataIndex: 'is_allow',
+			valueType: 'select',
+			onFilter: true,
+			ellipsis: true,
+			width: '10%',
+			valueEnum: {
+				'0': {
+					text: '未通过',
+					status: 'Error',
+				},
+				'1': {
+					text: '已通过',
+					status: 'Success',
+				},
+			},
 		},
 		{
 			title: '创建时间',
 			dataIndex: 'gmt_created',
+			valueType: 'date',
+			width: '11%',
+		},
+		{
+			title: '更新时间',
+			dataIndex: 'gmt_modified',
+			valueType: 'date',
+			width: '11%',
 		},
 		{
 			width: '12%',
@@ -100,23 +123,41 @@ const Info = () => {
 				cardBordered
 				columns={ columns }
 				request = { async (params = {})=>{
-					const { data:{ code,result } }=await personApi.searchSuperInfo(params.id);
-					if(code !== 200){
-						messageApi.open({
-							type: 'error',
-							content: '搜索失败',
-						});
-						return [];
+					if(params.id===undefined){
+						const { data:{ code,result } }=await personApi.searchAllAdmin();
+						if(code !== 200){
+							return [];
+						}
+						//获取全部管理员信息
+						let ret = [];
+						// console.log(result[0][0]);
+						for(const item in result[0]){
+							ret.push(result[0][item]);
+						}
+						return {
+							data: ret,
+							success: code === 200,
+						};
 					}
-					//获取对应管理员数据
-					let ret = [];
-					for (const item of result) {
-						ret.push({ ...item });
+					else{
+						const { data:{ code,result } }=await personApi.searchSuperInfo(params.id,params.name);
+						if(code !== 200){
+							messageApi.open({
+								type: 'error',
+								content: '搜索失败',
+							});
+							return [];
+						}
+						//获取对应管理员数据
+						let ret = [];
+						for (const item of result) {
+							ret.push({ ...item });
+						}
+						return {
+							data: ret,
+							success: code === 200,
+						};
 					}
-					return {
-						data: ret,
-						success: code === 200,
-					};
 				}}
 				rowKey="id"
 				headerTitle="管理员列表"
