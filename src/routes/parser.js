@@ -13,7 +13,7 @@ const flattenArray = (path, routes) => {
 	return retArr;
 };
 
-export function parseRoutes(menuList) {
+export function parseRoutes(menuList, appendList = []) {
 	const retList = [];
 	for (let i = 0; i < menuList.length; i++) {
 		let { path, element, routes } = menuList[i];
@@ -21,6 +21,7 @@ export function parseRoutes(menuList) {
 		if (!element) continue;
 		retList.push({ path, element });
 	}
+	retList.push(...appendList);
 	retList.push({
 		path: '*',
 		element: <NotFound/>,

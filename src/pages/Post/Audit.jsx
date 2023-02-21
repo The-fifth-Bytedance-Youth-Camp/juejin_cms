@@ -1,37 +1,89 @@
-import React, { Fragment, useState } from 'react';
-import { Button, Space } from 'antd';
-import { mdParser } from '../../utils/markdown';
-import { Helmet } from 'react-helmet';
+import React, { useEffect, useState } from 'react';
+import { message, Space, Tag } from 'antd';
+import { ProList } from '@ant-design/pro-components';
+import { useNavigate } from 'react-router-dom';
+import { postApi } from '../../apis/post';
 
-const Footer = () => {
-	return (
-		<div style={ {
-			position: 'absolute',
-			display: 'flex',
-			justifyContent: 'flex-end',
-			alignItems: 'center',
-		} }>
-			<Space>
-				<Button>不通过</Button>
-				<Button type="primary">通过</Button>
-			</Space>
-		</div>
-	);
-};
+const tagColor = [ 'magenta', 'volcano', 'orange', 'green', 'cyan', 'blue', 'geekblue', 'purple', 'lime', 'gold' ];
+let colorIndex = 0;
+const colorMap = {};
 
 const Audit = () => {
-	const [ theme, setTheme ] = useState('juejin');
-	const [ codeStyle, setCodeStyle ] = useState('atom-one-light');
-	const [ content, setContent ] = useState('# 123\n\n```js\nconst a = 1;\n```\n');
+	const [ dataSource, setDataSource ] = useState([]);
+	const navigate = useNavigate();
+	const [ messageApi, contextHolder ] = message.useMessage();
+	const getData = async () => {
+		const { data: { code, rows } } = await postApi.findPostByState('审核中');
+		if (code !== 200) {
+			messageApi.open({
+				type: 'error',
+				content: '数据获取失败',
+			});
+			return;
+		}
+		console.log(rows);
+		setDataSource(rows);
+	};
+
+	useEffect(() => {
+		(async () => {
+			await getData();
+		})();
+	}, []);
+
 	return (
-		<div style={ { position: 'relative' } }>
-			<Helmet>
-				<link rel="stylesheet" href={ `http://localhost:3100/theme/${ theme }.css` }/>
-				<link rel="stylesheet" href={ `http://localhost:3100/codeStyle/${ codeStyle }.css` }/>
-			</Helmet>
-			<div className="markdown-body"
-					 dangerouslySetInnerHTML={ { __html: mdParser.render(content) } }/>
-			<Footer/>
+		<div style={ { width: '100%', height: '100%', overflow: 'auto' } }>
+			{ contextHolder }
+			<h1 style={ { padding: '0 48px 10px' } }>待审列表</h1>
+			<ProList
+				loading={ false }
+				rowKey="id"
+				dataSource={ dataSource }
+				showActions="hover"
+				onDataSourceChange={ setDataSource }
+				metas={ {
+					title: {
+						dataIndex: 'title',
+					},
+					description: {
+						dataIndex: 'brief',
+					},
+					subTitle: {
+						render: (_, { tags = [] }) => {
+							return (
+								<Space>
+									{
+										tags.map(({ id, name }) => {
+											if (!colorMap[id]) colorMap[id] = tagColor[colorIndex++] || 'default';
+											return (
+												<Tag style={ { userSelect: 'none' } }
+														 color={ colorMap[id] }
+														 key={ id }>{ name }</Tag>
+											);
+										})
+									}
+								</Space>
+							);
+						},
+					},
+					avatar: {
+						render: (dom, { title, cover }) =>
+							cover && <img
+								height={ 80 }
+								src={ cover }
+								alt={ `${ title }_封面` }
+							/>,
+					},
+					actions: {
+						render: (dom, { id }) => [
+							<a key="link"
+								 onClick={ () => navigate(`/post/audit/${ id }`) }>
+								审核
+							</a>,
+						],
+					},
+				} }
+			/>
 		</div>
 	);
 };

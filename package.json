@@ -7,7 +7,7 @@
 		"build": "craco build"
 	},
 	"dependencies": {
-		"@ant-design/icons": "^5.0.0",
+		"@ant-design/icons": "^5.0.1",
 		"@ant-design/plots": "^1.2.5",
 		"@ant-design/pro-components": "^2.3.52",
 		"antd": "^5.1.5",

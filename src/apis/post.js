@@ -66,4 +66,14 @@ export const postApi = {
 	deletePost(id) {
 		return request.post('/post/delete', { id });
 	},
+	findPostByState(state) {
+		return request.get('/post/find/state', {
+			params: { state, page: 1, rows: 40 },
+		});
+	},
+	finPostById(id) {
+		return request.get('/post/find', {
+			params: { id },
+		});
+	},
 };

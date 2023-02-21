@@ -3,9 +3,6 @@ import {
 	LayoutFilled,
 	PieChartFilled,
 	TeamOutlined,
-	UserOutlined,
-	SafetyOutlined,
-	InfoCircleOutlined,
 	UserSwitchOutlined,
 	PlusCircleOutlined,
 	SecurityScanOutlined,
@@ -16,10 +13,8 @@ import React from 'react';
 
 import Home from '../pages/Home';
 import Redirect from '../components/Redirect';
-import SuperInfo from '../pages/Admin/Super/Info';
-import Role from '../pages/Admin/Super/Role';
-import CommonInfo from '../pages/Admin/Common/Info';
-import Permission from '../pages/Admin/Common/Permission';
+import SuperInfo from '../pages/Person/Admin';
+import CommonInfo from '../pages/Person/User';
 import Insert from '../pages/Post/Insert';
 import Search from '../pages/Post/Search';
 import Audit from '../pages/Post/Audit';
@@ -35,48 +30,22 @@ const menus = [
 		element: <Home/>,
 	},
 	{
-		path: '/admin',
+		path: '/person',
 		name: '人员管理',
 		icon: <TeamOutlined/>,
-		element: <Redirect to="/admin/super/info"/>,
+		element: <Redirect to="/person/user"/>,
 		routes: [
 			{
-				path: 'super',
-				name: '管理员管理',
-				icon: <CrownFilled/>,
-				routes: [
-					{
-						path: 'info',
-						name: '信息管理',
-						icon: <InfoCircleOutlined/>,
-						element: <SuperInfo/>,
-					},
-					// {
-					// 	path: 'role',
-					// 	name: '角色管理',
-					// 	icon: <UserOutlined/>,
-					// 	element: <Role/>,
-					// },
-				],
-			},
-			{
-				path: 'common',
+				path: 'user',
 				name: '用户管理',
 				icon: <UserSwitchOutlined/>,
-				routes: [
-					{
-						path: 'info',
-						name: '信息管理',
-						icon: <InfoCircleOutlined/>,
-						element: <CommonInfo/>,
-					},
-					{
-						path: 'permission',
-						name: '权限管理',
-						icon: <SafetyOutlined/>,
-						element: <Permission/>,
-					},
-				],
+				element: <CommonInfo/>,
+			},
+			{
+				path: 'admin',
+				name: '管理员管理',
+				icon: <CrownFilled/>,
+				element: <SuperInfo/>,
 			},
 		],
 	},

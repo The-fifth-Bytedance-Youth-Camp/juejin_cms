@@ -1,8 +1,8 @@
 import { ProTable } from '@ant-design/pro-components';
-import { Button, message, Popconfirm, Space, Tag } from 'antd';
+import { Button, message, Popconfirm, Form } from 'antd';
 import { EllipsisOutlined, PlusOutlined } from '@ant-design/icons';
 import React, { Fragment } from 'react';
-import { personApi } from '../../../apis/person';
+import { personApi } from '../../apis/person';
 import {
 	ModalForm,
 	ProForm,
@@ -11,7 +11,7 @@ import {
 	ProFormText,
 } from '@ant-design/pro-components';
 
-const Info = () => {
+const Admin = () => {
 	const [ messageApi, contextHolder ] = message.useMessage();
 	const columns = [
 		{
@@ -41,10 +41,10 @@ const Info = () => {
 			render: (text, { id }, _, action) => [
 				<Popconfirm
 					key="delete"
-					title="删除普通用户"
+					title="删除管理员"
 					description="删除后无法恢复，确定要删除么？"
 					onConfirm={ async () => {
-						const { data: { code } } = await personApi.deleteCommon(id);
+						const { data: { code } } = await personApi.deleteAdmin(id);
 						if (code !== 200) {
 							messageApi.open({
 								type: 'error',
@@ -61,14 +61,14 @@ const Info = () => {
 					</a>
 				</Popconfirm>,
 				<ModalForm key="update"
-									 title="更新普通用户"
+									 title="更新管理员"
 									 trigger={
 										 <a key="update">更新</a>
 									 }
 									 submitTimeout={ 2000 }
 									 onFinish={ async (values) => {
 										 const { id, name, email, password } = values;
-										 await personApi.updateCommon({ id, name, email, password });
+										 await personApi.updateAdmin({ id, name, email, password });
 										 message.success('更新成功');
 										 return true;
 									 } }
@@ -96,11 +96,12 @@ const Info = () => {
 	];
 	return (
 		<Fragment>
+			{ contextHolder }
 			<ProTable
 				cardBordered
 				columns={ columns }
 				request={ async (params = {}) => {
-					const { data: { code, result } } = await personApi.searchCommonInfo(params.id);
+					const { data: { code, result } } = await personApi.searchSuperInfo(params.id);
 					if (code !== 200) {
 						messageApi.open({
 							type: 'error',
@@ -108,7 +109,7 @@ const Info = () => {
 						});
 						return [];
 					}
-					//获取对应普通用户数据
+					//获取对应管理员数据
 					let ret = [];
 					for (const item of result) {
 						ret.push({ ...item });
@@ -119,10 +120,10 @@ const Info = () => {
 					};
 				} }
 				rowKey="id"
-				headerTitle="普通用户列表"
+				headerTitle="管理员列表"
 				toolBarRender={ () => [
 					<ModalForm key="insert"
-										 title="添加普通用户"
+										 title="添加管理员"
 										 trigger={
 											 <Button type="primary">
 												 <PlusOutlined/>
@@ -132,7 +133,7 @@ const Info = () => {
 										 submitTimeout={ 2000 }
 										 onFinish={ async (values) => {
 											 const { name, email, password } = values;
-											 await personApi.insertCommon({ name, email, password });
+											 await personApi.insertAdmin({ name, email, password });
 											 message.success('提交成功');
 											 return true;
 										 } }
@@ -158,4 +159,4 @@ const Info = () => {
 	);
 };
 
-export default Info;
+export default Admin;
