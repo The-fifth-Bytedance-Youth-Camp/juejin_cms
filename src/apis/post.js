@@ -53,7 +53,7 @@ export const postApi = {
 			code_style,
 		});
 	},
-	searchPost({ title, category, tags, state, endTime, startTime, current: page, pageSize: rows }) {
+	searchPost({ title = '', category, tags, state, endTime, startTime, current: page, pageSize: rows }) {
 		return request.get('/post/search', {
 			params: { title, category, tags, state, endTime, startTime, page, rows },
 		});
@@ -75,5 +75,17 @@ export const postApi = {
 		return request.get('/post/find', {
 			params: { id },
 		});
+	},
+	updatePostState(id, state) {
+		return request.post('/post/update', {
+			id,
+			newData: { state },
+		});
+	},
+	categoryPostCount() {
+		return request.get('/post/count/category');
+	},
+	statePostCount() {
+		return request.get('/post/count/state');
 	},
 };

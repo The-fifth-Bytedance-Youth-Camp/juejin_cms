@@ -12,6 +12,7 @@ const Audit = () => {
 	const [ dataSource, setDataSource ] = useState([]);
 	const navigate = useNavigate();
 	const [ messageApi, contextHolder ] = message.useMessage();
+	const [ loading, setLoading ] = useState(true);
 	const getData = async () => {
 		const { data: { code, rows } } = await postApi.findPostByState('审核中');
 		if (code !== 200) {
@@ -21,7 +22,6 @@ const Audit = () => {
 			});
 			return;
 		}
-		console.log(rows);
 		setDataSource(rows);
 	};
 
@@ -29,6 +29,7 @@ const Audit = () => {
 		(async () => {
 			await getData();
 		})();
+		setLoading(false);
 	}, []);
 
 	return (
@@ -36,7 +37,7 @@ const Audit = () => {
 			{ contextHolder }
 			<h1 style={ { padding: '0 48px 10px' } }>待审列表</h1>
 			<ProList
-				loading={ false }
+				loading={ loading }
 				rowKey="id"
 				dataSource={ dataSource }
 				showActions="hover"

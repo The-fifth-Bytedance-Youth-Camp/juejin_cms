@@ -144,7 +144,7 @@ const Search = () => {
 				cardBordered
 				columns={ columns }
 				request={ async (params = {}, { gmt_created: gmt_created_sort }) => {
-					const { data: { code, result } } = await postApi.searchPost(params);
+					const { data: { code, result, total } } = await postApi.searchPost(params);
 					if (code !== 200) {
 						messageApi.open({
 							type: 'error',
@@ -172,6 +172,7 @@ const Search = () => {
 						data: ret,
 						success: code === 200,
 						page: params?.current,
+						total,
 					};
 				} }
 				columnsState={ {

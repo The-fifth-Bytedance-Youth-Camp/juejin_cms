@@ -3,63 +3,36 @@ import { ProCard, StatisticCard } from '@ant-design/pro-components';
 import useScreenWidth from '../../utils/hooks/useScreenWidth';
 import PieChart from '../../components/PieChart';
 import LineChart from '../../components/LineChart';
+import { postApi } from '../../apis/post';
 
 const { Statistic } = StatisticCard;
 
 const { Divider } = StatisticCard;
 
-const categoryData = [
-	{
-		type: '前端', value: 27,
-	},
-	{
-		type: '后端', value: 25,
-	},
-	{
-		type: 'Android', value: 18,
-	},
-	{
-		type: 'iOS', value: 15,
-	},
-	{
-		type: '人工智能', value: 10,
-	},
-	{
-		type: '开发工具', value: 5,
-	},
-];
-
-const barData = [
-	{
-		year: '1957 年',
-		value: 145,
-	},
-	{
-		year: '1956 年',
-		value: 61,
-	},
-	{
-		year: '1952 年',
-		value: 52,
-	},
-	{
-		year: '1951 年',
-		value: 38,
-	},
-];
-
 const Home = () => {
 	const screenWidth = useScreenWidth();
-	const [ data, setData ] = useState([]);
+	const [ websiteWatchData, setWebsiteWatchData ] = useState([]);
+	const [ categoryData, setCategoryData ] = useState([]);
+	const [ allowCount, setAllowCount ] = useState(0);
+	const [ auditCount, setAuditCount ] = useState(0);
+	const [ disallowCount, setDisallowCount ] = useState(0);
 
 	useEffect(() => {
 		asyncFetch();
+		(async () => {
+			const { data: { result } } = await postApi.categoryPostCount();
+			setCategoryData(result.map(({ name, count }) => ({ type: name, value: count })));
+			const { data: { result: stateCount } } = await postApi.statePostCount();
+			setAuditCount(stateCount['审核中'] || 0);
+			setDisallowCount(stateCount['未过审'] || 0);
+			setAllowCount(stateCount['已发布'] || 0);
+		})();
 	}, []);
 
 	const asyncFetch = () => {
 		fetch('https://gw.alipayobjects.com/os/bmw-prod/1d565782-dde4-4bb6-8946-ea6a38ccf184.json')
 			.then((response) => response.json())
-			.then((json) => setData(json))
+			.then((json) => setWebsiteWatchData(json))
 			.catch((error) => {
 				console.log('fetch data failed', error);
 			});
@@ -76,28 +49,28 @@ const Home = () => {
 					statistic={ {
 						title: '全部',
 						tip: '全站文章数量',
-						value: 10,
+						value: auditCount + disallowCount + allowCount,
 					} }
 				/>
 				<Divider/>
 				<StatisticCard
 					statistic={ {
 						title: '审核中',
-						value: 3,
+						value: auditCount || '-',
 						status: 'processing',
 					} }
 				/>
 				<StatisticCard
 					statistic={ {
 						title: '未过审',
-						value: '-',
+						value: disallowCount || '-',
 						status: 'error',
 					} }
 				/>
 				<StatisticCard
 					statistic={ {
 						title: '已发布',
-						value: 100,
+						value: allowCount || '-',
 						status: 'success',
 					} }
 				/>
@@ -110,20 +83,20 @@ const Home = () => {
 						<StatisticCard
 							statistic={ {
 								title: '昨日全部阅读量',
-								value: 234,
-								description: <Statistic title="较本月平均阅读量" value="8.04%" trend="down"/>,
+								value: 0,
+								description: <Statistic title="较本月平均阅读量" value="x.xx%" trend="down"/>,
 							} }
 						/>
 						<Divider/>
 						<StatisticCard
 							statistic={ {
 								title: '本月累计阅读量',
-								value: 234,
-								description: <Statistic title="月同比" value="8.04%" trend="up"/>,
+								value: 0,
+								description: <Statistic title="月同比" value="x.xx%" trend="up"/>,
 							} }
 						/>
 					</StatisticCard.Group>
-					<LineChart data={ data }/>
+					<LineChart data={ websiteWatchData }/>
 				</ProCard>
 				{ /* 右侧 */ }
 				<PieChart data={ categoryData }/>
