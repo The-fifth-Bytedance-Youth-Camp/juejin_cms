@@ -61,7 +61,7 @@ const Info = () => {
 			width: '12%',
 			title: '操作',
 			valueType: 'option',
-			render: (text, { id }, _, action) => [
+			render: (text, { id,name,email,password }, _, action) => [
 				<Popconfirm
 					key="delete"
 					title="删除管理员"
@@ -90,28 +90,36 @@ const Info = () => {
 					}
 					submitTimeout={2000}
 					onFinish={async (values) => {
-						const { id,name,email,password } = values;
-						await personApi.updateAdmin({ id,name,email,password });
-						message.success('更新成功');
-						return true;
+						const { up_id,up_name,up_email,up_password } = values;
+						const { data: { code } } = await personApi.updateAdmin({ up_id,up_name,up_email,up_password });
+						if(code==200){
+							message.success('更新成功');
+							action?.reload();
+							return true;
+						}else{
+							message.error('更新失败');
+							return false;
+						}
+						
 					}}			
 				>
 					<ProForm.Group>
-						<ProFormText width="md" name="id" disabled label="编号" initialValue={`${ id }`}/>
+						<ProFormText width="md" name="up_id" disabled label="编号" initialValue={`${ id }`}/>
 					</ProForm.Group>
 					<ProForm.Group>
 						<ProFormText
 						width="md"
-						name="name"
+						name="up_name"
 						label="用户名"
 						placeholder="请输入用户名"
+						initialValue={`${ name }`}
 						/>
 					</ProForm.Group>
 					<ProForm.Group>
-						<ProFormText width="md" name="email" label="邮箱" placeholder="请输入邮箱" />
+						<ProFormText width="md" name="up_email" label="邮箱" placeholder="请输入邮箱" initialValue={`${ email }`}/>
 					</ProForm.Group>
 					<ProForm.Group>
-						<ProFormText.Password width="md" name="password" label="密码" type="password" placeholder="请输入密码" />
+						<ProFormText.Password width="md" name="up_password" label="密码" type="password" placeholder="请输入密码" initialValue={`${ password }`}/>
 					</ProForm.Group>
 				</ModalForm>,
 			],
