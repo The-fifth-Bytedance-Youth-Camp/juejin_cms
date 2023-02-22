@@ -70,12 +70,12 @@ const menus = [
 						icon: <InfoCircleOutlined/>,
 						element: <CommonInfo/>,
 					},
-					{
-						path: 'permission',
-						name: '权限管理',
-						icon: <SafetyOutlined/>,
-						element: <Permission/>,
-					},
+					// {
+					// 	path: 'permission',
+					// 	name: '权限管理',
+					// 	icon: <SafetyOutlined/>,
+					// 	element: <Permission/>,
+					// },
 				],
 			},
 		],

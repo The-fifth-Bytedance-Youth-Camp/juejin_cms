@@ -152,25 +152,30 @@ const Info = () => {
 						}
 						submitTimeout={2000}
 						onFinish={async (values) => {
-							const { name,email,password } = values;
-							await personApi.insertCommon({ name,email,password });
-							message.success('提交成功');
-							return true;
+							const { ad_name,ad_email,ad_password } = values;
+							const { data: { code } } = await personApi.insertCommon({ ad_name,ad_email,ad_password });
+							if(code==200){
+								message.success('提交成功');
+								return true;
+							}else{
+								message.error('提交失败');
+								return false;
+							}	
 						}}			
 					>
 						 <ProForm.Group>
 							<ProFormText
 							width="md"
-							name="name"
+							name="ad_name"
 							label="用户名"
 							placeholder="请输入用户名"
 							/>
 						</ProForm.Group>
 						<ProForm.Group>
-							<ProFormText width="md" name="email" label="邮箱" placeholder="请输入邮箱" />
+							<ProFormText width="md" name="ad_email" label="邮箱" placeholder="请输入邮箱" />
 						</ProForm.Group>
 						<ProForm.Group>
-							<ProFormText.Password width="md" name="password" label="密码" type="password" placeholder="请输入密码" />
+							<ProFormText.Password width="md" name="ad_password" label="密码" type="password" placeholder="请输入密码" />
 						</ProForm.Group>
 					</ModalForm>,
 				]}
