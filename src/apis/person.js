@@ -34,34 +34,34 @@ export const personApi = {
 	deleteCommon(id) {
 		return request.post('/user/delete', { id });
 	},
-	insertAdmin({ name,email,password }){
+	insertAdmin({ ad_name,ad_email,ad_password }){
 		return request.post('/admin/insert', {
-			name,
-			email,
-			password,
+			name:ad_name,
+			email:ad_email,
+			password:ad_password,
 		});
 	},
-	insertCommon({ name,email,password }){
+	insertCommon({ ad_name,ad_email,ad_password }){
 		return request.post('/user/insert', {
-			name,
-			email,
-			password,
+			name:ad_name,
+			email:ad_email,
+			password:ad_password,
 		});
 	},
-	updateAdmin({ id,name,email,password }){
+	updateAdmin({ up_id,up_name,up_email,up_password }){
 		return request.post('/admin/update', {
-			id,
-			name,
-			email,
-			password,
+			id:up_id,
+			name:up_name,
+			email:up_email,
+			password:up_password,
 		});
 	},
-	updateCommon({ id,name,email,password }){
+	updateCommon({ up_id,up_name,up_email,up_password }){
 		return request.post('/user/update', {
-			id,
-			name,
-			email,
-			password,
+			id:up_id,
+			name:up_name,
+			email:up_email,
+			password:up_password,
 		});
 	},
 	searchAllAdmin(){
