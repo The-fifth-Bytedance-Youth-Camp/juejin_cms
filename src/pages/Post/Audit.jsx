@@ -3,6 +3,7 @@ import { message, Space, Tag } from 'antd';
 import { ProList } from '@ant-design/pro-components';
 import { useNavigate } from 'react-router-dom';
 import { postApi } from '../../apis/post';
+import FastImg from '../../components/FastImg';
 
 const tagColor = [ 'magenta', 'volcano', 'orange', 'green', 'cyan', 'blue', 'geekblue', 'purple', 'lime', 'gold' ];
 let colorIndex = 0;
@@ -69,11 +70,11 @@ const Audit = () => {
 					},
 					avatar: {
 						render: (dom, { title, cover }) =>
-							cover && <img
-								height={ 80 }
-								src={ cover }
-								alt={ `${ title }_封面` }
-							/>,
+							cover &&
+							<FastImg style={ { objectFit: 'cover' } }
+											 width={ 120 } height={ 80 }
+											 pid={ cover }
+											 alt={ `${ title }_封面` }/>,
 					},
 					actions: {
 						render: (dom, { id }) => [

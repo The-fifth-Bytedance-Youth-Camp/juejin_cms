@@ -4,6 +4,7 @@ import useScreenWidth from '../../utils/hooks/useScreenWidth';
 import PieChart from '../../components/PieChart';
 import LineChart from '../../components/LineChart';
 import { postApi } from '../../apis/post';
+import moment from 'moment';
 
 const { Statistic } = StatisticCard;
 
@@ -16,32 +17,54 @@ const Home = () => {
 	const [ allowCount, setAllowCount ] = useState(0);
 	const [ auditCount, setAuditCount ] = useState(0);
 	const [ disallowCount, setDisallowCount ] = useState(0);
+	const [ yesterdayWatch, setYesterdayWatch ] = useState(0);
+	const [ averageWatch, setAverageWatch ] = useState(0);
+	const [ monthWatch, setMonthWatch ] = useState(0);
+	const [ compareLastMonth, setCompareLastMonth ] = useState(0);
 
 	useEffect(() => {
-		asyncFetch();
 		(async () => {
+			let { data: { result: watchDataResult } } = await postApi.getWebsiteWatch(
+				moment().subtract(1, 'months').format('YYYY-MM-DD'),
+				moment().format('YYYY-MM-DD'),
+			);
+			watchDataResult = watchDataResult.map(item => ({ ...item, date: moment(item?.date).format('YYYY-MM-DD') }));
+			setWebsiteWatchData(watchDataResult);
 			const { data: { result } } = await postApi.categoryPostCount();
 			setCategoryData(result.map(({ name, count }) => ({ type: name, value: count })));
 			const { data: { result: stateCount } } = await postApi.statePostCount();
 			setAuditCount(stateCount['审核中'] || 0);
 			setDisallowCount(stateCount['未过审'] || 0);
 			setAllowCount(stateCount['已发布'] || 0);
+			const { data: { num: yesterdayWatch } } = await postApi.getWebsiteWatchDay(moment().subtract(1, 'days').format('YYYY-MM-DD'));
+			setYesterdayWatch(yesterdayWatch);
+			setMonthWatch(watchDataResult.reduce((accumulator, currentValue) => accumulator + currentValue.num, 0));
+			setAverageWatch((yesterdayWatch - monthWatch / watchDataResult.length).toFixed(2));
+			let { data: { result: lastMonthWatch } } = await postApi.getWebsiteWatch(
+				moment().subtract(2, 'months').format('YYYY-MM-DD'),
+				moment().subtract(1, 'months').format('YYYY-MM-DD'),
+			);
+			const lastMonthWatchNum = lastMonthWatch.reduce((accumulator, currentValue) => accumulator + currentValue.num, 0);
+			let temp = (monthWatch - lastMonthWatchNum / monthWatch).toFixed(2);
+			if (isNaN(temp)) temp = 0;
+			setCompareLastMonth(temp);
 		})();
 	}, []);
 
-	const asyncFetch = () => {
-		fetch('https://gw.alipayobjects.com/os/bmw-prod/1d565782-dde4-4bb6-8946-ea6a38ccf184.json')
-			.then((response) => response.json())
-			.then((json) => setWebsiteWatchData(json))
-			.catch((error) => {
-				console.log('fetch data failed', error);
-			});
-	};
+	function getDateStr() {
+		const date = new Date();
+		const year = date.getFullYear();
+		const month = date.getMonth() + 1;
+		const day = date.getDate();
+		const weekday = date.getDay();
+		return year + '年' + month + '月' + day + '日 ' + '星期' + [ '日', '一', '二', '三', '四', '五', '六' ][weekday];
+	}
+
 	return (
 		<ProCard
 			headerBordered
 			title="数据概览"
-			extra="2019年9月28日 星期五"
+			extra={ getDateStr() }
 			split="horizontal">
 			{ /* 顶栏 */ }
 			<StatisticCard.Group style={ { paddingTop: '16px' } }>
@@ -83,16 +106,18 @@ const Home = () => {
 						<StatisticCard
 							statistic={ {
 								title: '昨日全部阅读量',
-								value: 0,
-								description: <Statistic title="较本月平均阅读量" value="x.xx%" trend="down"/>,
+								value: yesterdayWatch,
+								description: <Statistic title="较本月平均阅读量" value={ `${ averageWatch }%` }
+																				trend={ averageWatch >= 0 ? 'up' : 'down' }/>,
 							} }
 						/>
 						<Divider/>
 						<StatisticCard
 							statistic={ {
 								title: '本月累计阅读量',
-								value: 0,
-								description: <Statistic title="月同比" value="x.xx%" trend="up"/>,
+								value: monthWatch,
+								description: <Statistic title="较上月" value={ `${ compareLastMonth }%` }
+																				trend={ compareLastMonth >= 0 ? 'up' : 'down' }/>,
 							} }
 						/>
 					</StatisticCard.Group>

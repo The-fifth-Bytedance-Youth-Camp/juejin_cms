@@ -1,9 +1,8 @@
-
 import { ProTable } from '@ant-design/pro-components';
 import { Button, message, Popconfirm, Space, Tag } from 'antd';
 import { EllipsisOutlined, PlusOutlined } from '@ant-design/icons';
 import React, { Fragment } from 'react';
-import { personApi } from '../../../apis/person';
+import { personApi } from '../../apis/person';
 import {
 	ModalForm,
 	ProForm,

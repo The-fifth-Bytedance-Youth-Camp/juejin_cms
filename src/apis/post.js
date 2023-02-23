@@ -88,4 +88,14 @@ export const postApi = {
 	statePostCount() {
 		return request.get('/post/count/state');
 	},
+	getWebsiteWatch(start, end) {
+		return request.get('/website/watch/daily', {
+			params: { start, end },
+		});
+	},
+	getWebsiteWatchDay(date) {
+		return request.get('/website/watch/day', {
+			params: { date },
+		});
+	},
 };

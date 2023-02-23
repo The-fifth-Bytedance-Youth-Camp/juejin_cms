@@ -3,7 +3,7 @@ import React from 'react';
 const Category = () => {
 	return (
 		<div>
-			Category
+			<h3>没写完，后续会提交</h3>
 		</div>
 	);
 };

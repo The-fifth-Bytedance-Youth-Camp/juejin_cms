@@ -1,6 +1,7 @@
 import React from 'react';
 import { measureTextWidth, Pie } from '@ant-design/plots';
 import useScreenWidth from '../utils/hooks/useScreenWidth';
+import moment from 'moment';
 
 function renderStatistic(containerWidth, text, style) {
 	const { width: textWidth, height: textHeight } = measureTextWidth(text, style);
@@ -80,7 +81,7 @@ const PieChart = ({ data }) => {
 				alignItems: 'center',
 			} }>
 				<div style={ { ...getStyle('22px'), paddingBottom: '4px' } }>各分类文章数量统计</div>
-				<div style={ getStyle('12px') }>截止 2022-12-31 10:00:10</div>
+				<div style={ getStyle('12px') }>截止 { moment().format('YYYY-MM-DD HH:mm:ss') }</div>
 			</div>
 			<Pie { ...config } />
 		</div>
