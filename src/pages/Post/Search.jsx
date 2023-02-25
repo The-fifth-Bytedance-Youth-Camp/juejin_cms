@@ -196,9 +196,7 @@ const Search = () => {
 				} }
 				pagination={ {
 					pageSize: 10,
-					// onChange(page) {
-					// 	console.log(page);
-					// },
+					defaultPageSize: 10,
 				} }
 				dateFormatter="string"
 				headerTitle="文章列表"

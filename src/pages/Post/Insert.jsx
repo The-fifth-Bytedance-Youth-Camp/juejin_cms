@@ -16,7 +16,8 @@ const { Title } = Typography;
 
 // 去除 markdown 字符
 function removeMarkdownChars(markdown) {
-	return markdown.replace(/```.*```/g, '')
+	return markdown.replace(/!\[.+]/g, '')
+								 .replace(/```.*```/g, '')
 								 .replace(/>/g, '')
 								 .replace(/`/g, '')
 								 .replace(/#/g, '')
@@ -27,17 +28,7 @@ function removeMarkdownChars(markdown) {
 }
 
 function getMarkdownBrief(markdown = '', maxLength) {
-	const sentences = removeMarkdownChars(markdown).match(/[^\n.!?]+[\n.!?]+/g);
-	if (!sentences) return markdown;
-	let extractedSentence = '';
-	for (const sentence of sentences) {
-		if (extractedSentence.length + sentence.length < maxLength) {
-			extractedSentence += sentence;
-		} else {
-			break;
-		}
-	}
-	return extractedSentence.replace(/\n/g, ' ');
+	return removeMarkdownChars(markdown).replace(/\n/g, ' ').substring(0, maxLength);
 }
 
 const Insert = () => {

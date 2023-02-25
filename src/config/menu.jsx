@@ -79,42 +79,34 @@ const menus = [
 		path: '/layout',
 		name: '网页排版',
 		icon: <LayoutFilled/>,
-		element: <Redirect to="/layout/global/header"/>,
+		element: <Redirect to="/layout/header"/>,
 		routes: [
 			{
-				path: 'global',
-				name: '全局组件',
+				path: 'header',
+				name: '网站头部',
 				icon: <CrownFilled/>,
-				routes: [
-					{
-						path: 'header',
-						name: '网站头部',
-						icon: <CrownFilled/>,
-						element: <Header/>,
-					},
-				],
+				element: <Header/>,
 			},
 			{
-				path: 'home',
-				name: '首页',
+				path: 'category',
+				name: '文章分类',
 				icon: <CrownFilled/>,
-				routes: [
-					{
-						path: 'category',
-						name: '文章分类',
-						icon: <CrownFilled/>,
-						element: <Category/>,
-					},
-				],
+				element: <Category/>,
 			},
 			{
-				path: 'post',
-				name: '文章详情页',
+				path: 'upload',
+				name: '文件上传',
 				icon: <CrownFilled/>,
 				routes: [
 					{
 						path: 'theme',
 						name: 'Markdown 主题',
+						icon: <CrownFilled/>,
+						element: <Markdown/>,
+					},
+					{
+						path: 'code',
+						name: '代码块主题',
 						icon: <CrownFilled/>,
 						element: <Markdown/>,
 					},
